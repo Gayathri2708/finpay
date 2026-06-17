@@ -10,7 +10,9 @@ import '../../../wallet/presentation/bloc/wallet_bloc.dart';
 import '../bloc/send_money_bloc.dart';
 
 class SendMoneyPage extends StatefulWidget {
-  const SendMoneyPage({super.key});
+  final String? initialPhone;
+
+  const SendMoneyPage({super.key, this.initialPhone});
 
   @override
   State<SendMoneyPage> createState() => _SendMoneyPageState();
@@ -21,6 +23,14 @@ class _SendMoneyPageState extends State<SendMoneyPage> {
   final _phoneController = TextEditingController();
   final _amountController = TextEditingController();
   final _descriptionController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.initialPhone != null) {
+      _phoneController.text = widget.initialPhone!;
+    }
+  }
 
   @override
   void dispose() {

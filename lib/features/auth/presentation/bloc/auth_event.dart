@@ -35,3 +35,9 @@ class RegisterRequested extends AuthEvent {
 class LogoutRequested extends AuthEvent {}
 
 class CheckAuthRequested extends AuthEvent {}
+
+class AppResumed extends AuthEvent {}
+
+class AppPaused extends AuthEvent {}
+
+class SessionUnlocked extends AuthEvent {}

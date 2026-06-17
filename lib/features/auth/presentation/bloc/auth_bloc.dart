@@ -1,6 +1,8 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
+import '../../../../core/constants/app_constants.dart';
 import '../../domain/entities/user_entity.dart';
 import '../../domain/usecases/check_auth_usecase.dart';
 import '../../domain/usecases/login_usecase.dart';
@@ -15,17 +17,24 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final RegisterUseCase registerUseCase;
   final LogoutUseCase logoutUseCase;
   final CheckAuthUseCase checkAuthUseCase;
+  final FlutterSecureStorage secureStorage;
+
+  UserEntity? _lastUser;
 
   AuthBloc({
     required this.loginUseCase,
     required this.registerUseCase,
     required this.logoutUseCase,
     required this.checkAuthUseCase,
+    required this.secureStorage,
   }) : super(AuthInitial()) {
     on<LoginRequested>(_onLoginRequested);
     on<RegisterRequested>(_onRegisterRequested);
     on<LogoutRequested>(_onLogoutRequested);
     on<CheckAuthRequested>(_onCheckAuthRequested);
+    on<AppPaused>(_onAppPaused);
+    on<AppResumed>(_onAppResumed);
+    on<SessionUnlocked>(_onSessionUnlocked);
   }
 
   Future<void> _onLoginRequested(
@@ -39,7 +48,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     );
     result.fold(
       (failure) => emit(AuthError(message: failure.message)),
-      (user) => emit(Authenticated(user: user)),
+      (user) {
+        _lastUser = user;
+        emit(Authenticated(user: user));
+      },
     );
   }
 
@@ -55,7 +67,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     );
     result.fold(
       (failure) => emit(AuthError(message: failure.message)),
-      (user) => emit(Authenticated(user: user)),
+      (user) {
+        _lastUser = user;
+        emit(Authenticated(user: user));
+      },
     );
   }
 
@@ -67,7 +82,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     final result = await logoutUseCase();
     result.fold(
       (failure) => emit(AuthError(message: failure.message)),
-      (_) => emit(Unauthenticated()),
+      (_) {
+        _lastUser = null;
+        emit(Unauthenticated());
+      },
     );
   }
 
@@ -79,7 +97,58 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     final result = await checkAuthUseCase();
     result.fold(
       (_) => emit(Unauthenticated()),
-      (user) => emit(Authenticated(user: user)),
+      (user) {
+        _lastUser = user;
+        emit(Authenticated(user: user));
+      },
     );
+  }
+
+  Future<void> _onAppPaused(
+    AppPaused event,
+    Emitter<AuthState> emit,
+  ) async {
+    await secureStorage.write(
+      key: AppConstants.lastActiveKey,
+      value: DateTime.now().toIso8601String(),
+    );
+  }
+
+  Future<void> _onAppResumed(
+    AppResumed event,
+    Emitter<AuthState> emit,
+  ) async {
+    if (state is! Authenticated) return;
+
+    final lastActiveStr = await secureStorage.read(
+      key: AppConstants.lastActiveKey,
+    );
+    if (lastActiveStr == null) return;
+
+    final lastActive = DateTime.tryParse(lastActiveStr);
+    if (lastActive == null) return;
+
+    final elapsed = DateTime.now().difference(lastActive);
+    if (elapsed > AppConstants.sessionTimeout) {
+      emit(SessionExpired());
+    }
+  }
+
+  Future<void> _onSessionUnlocked(
+    SessionUnlocked event,
+    Emitter<AuthState> emit,
+  ) async {
+    if (_lastUser != null) {
+      emit(Authenticated(user: _lastUser!));
+    } else {
+      final result = await checkAuthUseCase();
+      result.fold(
+        (_) => emit(Unauthenticated()),
+        (user) {
+          _lastUser = user;
+          emit(Authenticated(user: user));
+        },
+      );
+    }
   }
 }

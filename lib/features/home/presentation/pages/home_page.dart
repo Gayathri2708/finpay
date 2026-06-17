@@ -1,7 +1,9 @@
+// Main app shell — bottom nav on mobile, sidebar nav on tablet (width > 600).
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/utils/responsive_helper.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../../wallet/presentation/pages/home_tab.dart';
 import '../../../transactions/presentation/pages/transactions_page.dart';
@@ -24,28 +26,21 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    if (ResponsiveHelper.isTablet(context)) {
+      return _buildTabletLayout();
+    }
+    return _buildMobileLayout();
+  }
+
+  Widget _buildMobileLayout() {
     return Scaffold(
       appBar: _currentIndex == 0
           ? AppBar(
               title: const Text('FinPay'),
-              actions: [
-                IconButton(
-                  icon: const Icon(Icons.notifications_outlined),
-                  onPressed: () {},
-                ),
-                IconButton(
-                  icon: const Icon(Icons.logout),
-                  onPressed: () {
-                    context.read<AuthBloc>().add(LogoutRequested());
-                  },
-                ),
-              ],
+              actions: _appBarActions(),
             )
           : null,
-      body: IndexedStack(
-        index: _currentIndex,
-        children: _pages,
-      ),
+      body: IndexedStack(index: _currentIndex, children: _pages),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: (index) => setState(() => _currentIndex = index),
@@ -70,6 +65,61 @@ class _HomePageState extends State<HomePage> {
         ],
       ),
     );
+  }
+
+  Widget _buildTabletLayout() {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('FinPay'),
+        actions: _appBarActions(),
+      ),
+      body: Row(
+        children: [
+          NavigationRail(
+            selectedIndex: _currentIndex,
+            onDestinationSelected: (index) =>
+                setState(() => _currentIndex = index),
+            labelType: NavigationRailLabelType.all,
+            destinations: const [
+              NavigationRailDestination(
+                icon: Icon(Icons.home_outlined),
+                selectedIcon: Icon(Icons.home),
+                label: Text('Home'),
+              ),
+              NavigationRailDestination(
+                icon: Icon(Icons.history_outlined),
+                selectedIcon: Icon(Icons.history),
+                label: Text('History'),
+              ),
+              NavigationRailDestination(
+                icon: Icon(Icons.person_outline),
+                selectedIcon: Icon(Icons.person),
+                label: Text('Profile'),
+              ),
+            ],
+          ),
+          const VerticalDivider(thickness: 1, width: 1),
+          Expanded(
+            child: IndexedStack(index: _currentIndex, children: _pages),
+          ),
+        ],
+      ),
+    );
+  }
+
+  List<Widget> _appBarActions() {
+    return [
+      IconButton(
+        icon: const Icon(Icons.notifications_outlined),
+        onPressed: () {},
+      ),
+      IconButton(
+        icon: const Icon(Icons.logout),
+        onPressed: () {
+          context.read<AuthBloc>().add(LogoutRequested());
+        },
+      ),
+    ];
   }
 }
 

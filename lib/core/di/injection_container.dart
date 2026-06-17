@@ -28,6 +28,8 @@ import '../../features/wallet/domain/usecases/send_money_usecase.dart';
 import '../../features/wallet/presentation/bloc/wallet_bloc.dart';
 import '../network/api_client.dart';
 import '../network/network_info.dart';
+import '../security/app_lock_service.dart';
+import '../security/biometric_service.dart';
 
 final sl = GetIt.instance;
 
@@ -39,6 +41,7 @@ Future<void> init() async {
       registerUseCase: sl(),
       logoutUseCase: sl(),
       checkAuthUseCase: sl(),
+      secureStorage: sl(),
     ),
   );
 
@@ -113,6 +116,12 @@ Future<void> init() async {
   );
   sl.registerLazySingleton<TransactionLocalDataSource>(
     () => TransactionLocalDataSourceImpl(),
+  );
+
+  // ── Security Services ──
+  sl.registerLazySingleton(() => BiometricService());
+  sl.registerLazySingleton(
+    () => AppLockService(storage: sl()),
   );
 
   // ── Core ──

@@ -25,3 +25,11 @@ class NetworkFailure extends Failure {
 class AuthFailure extends Failure {
   const AuthFailure({required super.message, super.statusCode});
 }
+
+class BiometricFailure extends Failure {
+  const BiometricFailure({required super.message});
+}
+
+class PinFailure extends Failure {
+  const PinFailure({required super.message});
+}
