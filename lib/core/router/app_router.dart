@@ -5,6 +5,8 @@ import '../../features/auth/presentation/bloc/auth_bloc.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/pages/register_page.dart';
 import '../../features/home/presentation/pages/home_page.dart';
+import '../../features/send_money/presentation/pages/send_money_page.dart';
+import '../../features/transactions/presentation/pages/transactions_page.dart';
 
 class AppRouter {
   final AuthBloc authBloc;
@@ -45,6 +47,16 @@ class AppRouter {
         path: '/home',
         name: 'home',
         builder: (context, state) => const HomePage(),
+      ),
+      GoRoute(
+        path: '/transactions',
+        name: 'transactions',
+        builder: (context, state) => const TransactionsPage(),
+      ),
+      GoRoute(
+        path: '/send-money',
+        name: 'send-money',
+        builder: (context, state) => const SendMoneyPage(),
       ),
     ],
   );

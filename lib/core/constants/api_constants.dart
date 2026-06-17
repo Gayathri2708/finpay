@@ -7,6 +7,9 @@ class ApiConstants {
   static const String refreshToken = '/auth/refresh';
   static const String logout = '/auth/logout';
   static const String profile = '/user/profile';
+  static const String wallet = '/wallet';
+  static const String walletSend = '/wallet/send';
+  static const String transactions = '/transactions';
 
   static const Duration connectTimeout = Duration(seconds: 30);
   static const Duration receiveTimeout = Duration(seconds: 30);
