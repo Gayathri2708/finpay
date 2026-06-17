@@ -1,0 +1,59 @@
+name: finpay
+description: "FinPay - A fintech wallet application"
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.10.7
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  cupertino_icons: ^1.0.8
+
+  # State Management
+  flutter_bloc: ^9.1.0
+  bloc: ^9.0.0
+  flutter_riverpod: ^2.6.1
+
+  # Navigation
+  go_router: ^15.1.2
+
+  # Dependency Injection
+  get_it: ^8.0.3
+  injectable: ^2.5.0
+
+  # Networking
+  dio: ^5.8.0+1
+  pretty_dio_logger: ^1.4.0
+
+  # Storage & Security
+  flutter_secure_storage: ^9.2.4
+  local_auth: ^2.3.0
+
+  # UI
+  shimmer: ^3.0.0
+  cached_network_image: ^3.4.1
+  google_fonts: ^6.2.1
+  gap: ^3.0.1
+
+  # Utilities
+  equatable: ^2.0.7
+  dartz: ^0.10.1
+  intl: ^0.20.2
+  uuid: ^4.5.1
+  connectivity_plus: ^6.1.4
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^6.0.0
+  build_runner: ^2.4.15
+  injectable_generator: ^2.7.0
+  bloc_test: ^10.0.0
+  mocktail: ^1.0.4
+
+flutter:
+  uses-material-design: true
